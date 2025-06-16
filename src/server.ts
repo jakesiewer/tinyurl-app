@@ -26,7 +26,6 @@ app.use((req, res, next) => {
 });
 
 app.use('/', urlRoutes);
-
 app.use(errorHandler);
 
 app.use('*', (req, res) => {

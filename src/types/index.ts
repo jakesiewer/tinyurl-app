@@ -1,5 +1,3 @@
-// src/types/index.ts
-
 export interface ShortenUrlRequest {
   url: string;
 }
@@ -31,4 +29,12 @@ export interface ErrorResponse {
 
 export interface ValidationError extends Error {
   statusCode: number;
+}
+
+export interface RateLimiterRule {
+    endpoint: string;
+    rate_limit: {
+        time: number;
+        limit: number;
+    }
 }
