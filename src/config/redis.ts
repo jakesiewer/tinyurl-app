@@ -100,33 +100,6 @@ class RedisConnection {
       throw error;
     }
   }
-
-  public async incr(id: string): Promise<number> {
-    try {
-      return await this.client.incr(id);
-    } catch (error) {
-      console.error('Error incrementing value in Redis:', error);
-      throw error;
-    }
-  }
-
-  public async expire(id: string, seconds: number): Promise<void> {
-    try {
-      await this.client.expire(id, seconds);
-    } catch (error) {
-      console.error('Error setting expiration in Redis:', error);
-      throw error;
-    }
-  }
-
-  public async ttl(id: string): Promise<number> {
-    try {
-      return await this.client.ttl(id);
-    } catch (error) {
-      console.error('Error getting TTL from Redis:', error);
-      throw error;
-    }
-  }
 }
 
 // Export singleton instance

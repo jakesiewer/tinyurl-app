@@ -11,6 +11,7 @@ export const rateLimiter = (rules: RateLimiterRule[]) => {
         if (!matchedRule) {
             return next();
         }
+        const client = redisClient.getClient();
         const { endpoint, rate_limit } = matchedRule;
         const ipAddress = req.ip;
         const redisId = `${endpoint}:${ipAddress}`;
@@ -18,14 +19,14 @@ export const rateLimiter = (rules: RateLimiterRule[]) => {
         console.log(`Rate limiting for ${redisId} on endpoint ${endpoint}`);
         console.log(`Rate limit rule: ${JSON.stringify(rate_limit)}`);
 
-        const requests = await redisClient.incr(redisId);
+        const requests = await client.incr(redisId);
         if (requests === 1) {
-            await redisClient.expire(redisId, rate_limit.time);
+            await client.expire(redisId, rate_limit.time);
         } else {
             // Ensure expiration is always set
-            const ttl = await redisClient.ttl(redisId);
+            const ttl = await client.ttl(redisId);
             if (ttl === -1) {
-                await redisClient.expire(redisId, rate_limit.time);
+                await client.expire(redisId, rate_limit.time);
             }
         }
         
