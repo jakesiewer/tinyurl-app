@@ -38,3 +38,10 @@ export interface RateLimiterRule {
         limit: number;
     }
 }
+
+export interface TokenBucketRule {
+  endpoint: string;
+  bucket_size: number;
+  refill_rate: number;
+  tokens_per_request: number;
+}

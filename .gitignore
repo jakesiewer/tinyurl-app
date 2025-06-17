@@ -27,3 +27,6 @@ logs
 
 # Environment variables
 .env*
+
+# Redis
+dump.rdb

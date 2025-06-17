@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { ShortenUrlRequest, ShortenUrlResponse, UrlData, ErrorResponse, RateLimiterRule } from '../types';
+import { ShortenUrlRequest, ShortenUrlResponse, UrlData, ErrorResponse, RateLimiterRule, TokenBucketRule } from '../types';
 import { redisClient } from '../config/redis';
 import { codeGenerator } from '../utils/codeGenerator';
 import {
@@ -8,6 +8,7 @@ import {
     sanitizeInput
 } from '../middleware/validation';
 import { rateLimiter, config } from '../middleware/rateLimiter';
+import { simpleTokenBucketLimiter } from '../middleware/simpleTokenBucketLimiter';
 
 const router = Router();
 
@@ -35,6 +36,15 @@ const USER_RATE_LIMIT_RULES: RateLimiterRule[] = [
     }
 ];
 
+const USER_TOKEN_BUCKET_RULES: TokenBucketRule[] = [
+    {
+        endpoint: '/shorten',
+        bucket_size: 2,
+        refill_rate: 1,
+        tokens_per_request: 1
+    }
+];
+
 router.get('/health', async (req: Request, res: Response): Promise<void> => {
     try {
         const redisConnected = redisClient.isRedisConnected();
@@ -57,7 +67,8 @@ router.get('/health', async (req: Request, res: Response): Promise<void> => {
 router.post('/shorten',
     sanitizeInput,
     validateShortenRequest,
-    rateLimiter([USER_RATE_LIMIT_RULES[0]]),
+    simpleTokenBucketLimiter(USER_TOKEN_BUCKET_RULES),
+    // rateLimiter([USER_RATE_LIMIT_RULES[0]]),
     async (req: Request<{}, ShortenUrlResponse | ErrorResponse, ShortenUrlRequest>, res: Response): Promise<void> => {
         try {
             const { url } = req.body;
